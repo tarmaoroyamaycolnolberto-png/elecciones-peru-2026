@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elecciones Peru 2026 — Analisis en Vivo</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --bg2: #111418;
+    --bg3: #181c22;
+    --border: rgba(255,255,255,0.07);
+    --text: #e8e9eb;
+    --muted: #6b7280;
+    --la: #3b82f6;
+    --sa: #f59e0b;
+    --ni: #10b981;
+    --red: #ef4444;
+    --accent: #6366f1;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Sora', sans-serif; font-size: 14px; min-height: 100vh; }
+  
+  header { border-bottom: 1px solid var(--border); padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; background: var(--bg2); }
+  .logo { font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; }
+  .logo span { color: var(--text); }
+  #status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); display: inline-block; margin-right: 6px; }
+  #status-dot.live { background: var(--ni); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{ opacity:1 } 50%{ opacity:0.4 } }
+  #status-text { font-size: 12px; color: var(--muted); font-family: 'DM Mono', monospace; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 28px 20px; }
+
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  @media(max-width:700px){ .grid-4{ grid-template-columns:repeat(2,1fr); } }
+
+  .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+  .card-label { font-size: 11px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; font-family: 'DM Mono', monospace; }
+  .card-value { font-size: 26px; font-weight: 700; line-height: 1; }
+  .card-sub { font-size: 12px; color: var(--muted); margin-top: 4px; font-family: 'DM Mono', monospace; }
+
+  .bar-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 20px 22px; margin-bottom: 20px; }
+  .bar-label { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+  .cand-name { font-size: 13px; font-weight: 600; }
+  .cand-pct { font-size: 20px; font-weight: 700; font-family: 'DM Mono', monospace; }
+  .bar-track { background: var(--bg3); border-radius: 4px; height: 8px; overflow: hidden; margin-bottom: 6px; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease; }
+  .cand-votes { font-size: 12px; color: var(--muted); font-family: 'DM Mono', monospace; text-align: right; }
+
+  .gap-banner { background: var(--bg3); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  .gap-label { font-size: 12px; color: var(--muted); font-family: 'DM Mono', monospace; }
+  .gap-value { font-size: 22px; font-weight: 700; font-family: 'DM Mono', monospace; }
+
+  .section-title { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-family: 'DM Mono', monospace; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  @media(max-width:650px){ .grid-2{ grid-template-columns:1fr; } }
+
+  .pool-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+  .pool-title { font-size: 13px; font-weight: 600; margin-bottom: 12px; }
+  .pool-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+  .pool-row:last-child { border-bottom: none; }
+  .pool-key { color: var(--muted); font-family: 'DM Mono', monospace; }
+  .pool-val { font-family: 'DM Mono', monospace; font-weight: 600; }
+
+  .scenario-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 20px 22px; margin-bottom: 20px; }
+  .scenario-row { display: flex; align-items: center; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+  .scenario-row:last-child { border-bottom: none; }
+  .sc-surge { font-family: 'DM Mono', monospace; width: 60px; color: var(--muted); }
+  .sc-bar-wrap { flex: 1; height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+  .sc-bar { height: 100%; border-radius: 3px; }
+  .sc-result { font-family: 'DM Mono', monospace; font-weight: 600; min-width: 100px; text-align: right; }
+
+  .dept-table { width: 100%; border-collapse: collapse; font-size: 12px; font-family: 'DM Mono', monospace; }
+  .dept-table th { text-align: left; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--border); font-weight: 500; }
+  .dept-table td { padding: 7px 8px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .dept-table tr:hover td { background: var(--bg3); }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+  .pill-la { background: rgba(59,130,246,0.15); color: #93c5fd; }
+  .pill-sa { background: rgba(245,158,11,0.15); color: #fcd34d; }
+
+  .prob-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 20px 22px; margin-bottom: 20px; }
+  .prob-track { height: 24px; background: var(--bg3); border-radius: 6px; overflow: hidden; display: flex; margin: 12px 0; }
+  .prob-la { background: var(--la); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; transition: width 1s ease; }
+  .prob-sa { background: var(--sa); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #000; transition: width 1s ease; }
+
+  footer { border-top: 1px solid var(--border); padding: 16px 24px; text-align: center; font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
+  #last-update { display: inline; }
+
+  .error-msg { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; padding: 12px 16px; font-size: 12px; color: #fca5a5; font-family: 'DM Mono', monospace; margin-bottom: 16px; display: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Elecciones <span>Peru 2026</span> — 1ra Vuelta</div>
+  <div>
+    <span id="status-dot"></span>
+    <span id="status-text">Conectando...</span>
+  </div>
+</header>
+
+<main>
+  <div id="error-msg" class="error-msg">No se pudo conectar con la ONPE. Mostrando datos en cache.</div>
+
+  <!-- Metric cards -->
+  <div class="grid-4">
+    <div class="card">
+      <div class="card-label">Actas contabilizadas</div>
+      <div class="card-value" id="m-pct">—</div>
+      <div class="card-sub" id="m-actas">—/— actas</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Votos emitidos</div>
+      <div class="card-value" id="m-votes">—</div>
+      <div class="card-sub" id="m-rem">~— restantes</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Brecha LA–SA</div>
+      <div class="card-value" id="m-gap" style="color:var(--la)">—</div>
+      <div class="card-sub" id="m-gap2">votos de diferencia</div>
+    </div>
+    <div class="card">
+      <div class="card-label">SA vs Nieto</div>
+      <div class="card-value" id="m-ni">—</div>
+      <div class="card-sub" id="m-ni2">—</div>
+    </div>
+  </div>
+
+  <!-- Candidate bars -->
+  <div class="bar-wrap">
+    <div class="section-title">Candidatos — votos validos</div>
+    <div id="cand-bars"></div>
+  </div>
+
+  <!-- Probability -->
+  <div class="prob-wrap">
+    <div class="section-title">Probabilidad 2do lugar (matematica de buffer)</div>
+    <div class="prob-track">
+      <div class="prob-la" id="prob-la" style="width:50%">LA</div>
+      <div class="prob-sa" id="prob-sa" style="width:50%">SA</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;font-family:'DM Mono',monospace;">
+      <span style="color:var(--la)" id="prob-la-txt">—%</span>
+      <span style="color:var(--sa)" id="prob-sa-txt">—%</span>
+    </div>
+  </div>
+
+  <!-- 3 Pools -->
+  <div class="section-title" style="margin-bottom:14px">Analisis por zona</div>
+  <div class="grid-2">
+    <div class="pool-card">
+      <div class="pool-title" style="color:var(--la)">Lima Metropolitana</div>
+      <div class="pool-row"><span class="pool-key">Contado</span><span class="pool-val" id="pool-lima-pct">—</span></div>
+      <div class="pool-row"><span class="pool-key">Votos rest.</span><span class="pool-val" id="pool-lima-rem">—</span></div>
+      <div class="pool-row"><span class="pool-key">LA %</span><span class="pool-val" style="color:var(--la)" id="pool-lima-la">—</span></div>
+      <div class="pool-row"><span class="pool-key">SA %</span><span class="pool-val" style="color:var(--sa)" id="pool-lima-sa">—</span></div>
+      <div class="pool-row"><span class="pool-key">Net proyectado</span><span class="pool-val" id="pool-lima-net">—</span></div>
+    </div>
+    <div class="pool-card">
+      <div class="pool-title" style="color:var(--sa)">Provincias (24 depts)</div>
+      <div class="pool-row"><span class="pool-key">Votos rest.</span><span class="pool-val" id="pool-prov-rem">—</span></div>
+      <div class="pool-row"><span class="pool-key">LA %</span><span class="pool-val" style="color:var(--la)" id="pool-prov-la">—</span></div>
+      <div class="pool-row"><span class="pool-key">SA %</span><span class="pool-val" style="color:var(--sa)" id="pool-prov-sa">—</span></div>
+      <div class="pool-row"><span class="pool-key">Spread necesario</span><span class="pool-val" id="pool-needed">—</span></div>
+      <div class="pool-row"><span class="pool-key">Extra pp requerido</span><span class="pool-val" id="pool-extra">—</span></div>
+    </div>
+  </div>
+
+  <!-- Scenarios -->
+  <div class="scenario-wrap">
+    <div class="section-title">Escenarios — si SA sube X puntos en provincias</div>
+    <div id="scenarios"></div>
+  </div>
+
+  <!-- Department table -->
+  <div class="card" style="margin-bottom:20px;overflow-x:auto">
+    <div class="section-title">Departamentos — detalle</div>
+    <table class="dept-table" id="dept-table">
+      <thead>
+        <tr>
+          <th>Departamento</th>
+          <th>Contado%</th>
+          <th>Emitidos</th>
+          <th>Restantes</th>
+          <th>SA%</th>
+          <th>LA%</th>
+          <th>Net proyectado</th>
+        </tr>
+      </thead>
+      <tbody id="dept-body"></tbody>
+    </table>
+  </div>
+
+</main>
+
+<footer>
+  Fuente: ONPE — <span id="last-update">Actualizando...</span> — Analisis matematico de buffer | No oficial
+</footer>
+
+<script>
+const BASE = 'https://resultadoelectoral.onpe.gob.pe/presentacion-backend/';
+const DEPT_NAMES = {
+  '010000':'Amazonas','020000':'Ancash','030000':'Apurimac','040000':'Arequipa',
+  '050000':'Ayacucho','060000':'Cajamarca','070000':'Cusco','080000':'Huancavelica',
+  '090000':'Huanuco','100000':'Ica','110000':'Junin','120000':'La Libertad',
+  '130000':'Lambayeque','140000':'Lima','150000':'Loreto','160000':'Madre de Dios',
+  '170000':'Moquegua','180000':'Pasco','190000':'Piura','200000':'Puno',
+  '210000':'San Martin','220000':'Tacna','230000':'Tumbes','240000':'Callao','250000':'Ucayali'
+};
+const DEPT_PCT_FALLBACK = {
+  '010000':52.5,'020000':75.7,'030000':72.4,'040000':93.1,'050000':72.8,
+  '060000':51.8,'070000':77.9,'080000':75.9,'090000':72.6,'100000':61.0,
+  '110000':71.3,'120000':71.8,'130000':77.9,'140000':89.9,'150000':69.0,
+  '160000':49.3,'170000':94.6,'180000':76.8,'190000':57.5,'200000':75.4,
+  '210000':63.7,'220000':81.3,'230000':79.7,'240000':93.5,'250000':55.1
+};
+const UBIGEOS = Object.keys(DEPT_NAMES);
+
+function fmt(n){ return Math.round(n).toLocaleString('es-PE'); }
+function pct(n){ return n.toFixed(2)+'%'; }
+function strip(s){ return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase(); }
+
+async function apiFetch(path){
+  try {
+    const r = await fetch(BASE+path, {
+      headers: { 'Accept':'application/json','Origin':'https://resultadoelectoral.onpe.gob.pe','Referer':'https://resultadoelectoral.onpe.gob.pe/' }
+    });
+    if(!r.ok) return null;
+    const t = await r.text();
+    if(!t || t.startsWith('<')) return null;
+    return JSON.parse(t);
+  } catch(e){ return null; }
+}
+
+async function fetchAll(){
+  const [totals, candsRaw] = await Promise.all([
+    apiFetch('resumen-general/totales?idEleccion=10&tipoFiltro=eleccion'),
+    apiFetch('eleccion-presidencial/participantes-ubicacion-geografica-nombre?idEleccion=10&tipoFiltro=eleccion')
+  ]);
+  return { totals, candsRaw };
+}
+
+async function fetchDepts(){
+  const results = {};
+  for(const ubi of UBIGEOS){
+    const d = await apiFetch(`eleccion-presidencial/participantes-ubicacion-geografica-nombre?idEleccion=10&idAmbitoGeografico=1&tipoFiltro=ubigeo_nivel_01&ubigeoNivel1=${ubi}&ubigeoNivel2=&ubigeoNivel3=`);
+    if(d && d.data) results[ubi] = d.data;
+    await new Promise(r=>setTimeout(r,120));
+  }
+  return results;
+}
+
+async function fetchDeptPcts(){
+  const map = {};
+  const mc = await apiFetch('resumen-general/mapa-calor?idEleccion=10&idAmbitoGeografico=1&tipoFiltro=ubigeo_nivel_01');
+  if(mc && mc.data){
+    for(const item of mc.data){
+      if(item.ubigeo){
+        map[item.ubigeo] = { pct: item.porcentajeActasContabilizadas||0, cont: item.contabilizadas||0, total: item.totalActas||0 };
+      }
+    }
+  }
+  return map;
+}
+
+function findCand(cands, keyword){
+  return cands.find(c => strip(c.nombreCandidato||'').includes(keyword));
+}
+
+function render(data){
+  const { nt, nc, depts, deptPcts, pctCounted, totalActas, countedActas } = data;
+  const te = nt.totalVotosEmitidos;
+  const estTotal = Math.round(te/(pctCounted/100));
+  const estRem = estTotal - te;
+  const remainingActas = totalActas - countedActas;
+
+  const valid = nc.filter(c=>!['80','81'].includes(c.codigoAgrupacionPolitica||''));
+  valid.sort((a,b)=>b.totalVotosValidos-a.totalVotosValidos);
+
+  const laC = findCand(valid,'ALIAGA');
+  const saC = valid.find(c=>strip(c.nombreCandidato||'').includes('SANCHEZ')&&strip(c.nombreCandidato||'').includes('PALOMINO'));
+  const niC = findCand(valid,'NIETO');
+
+  if(!laC||!saC) return;
+
+  const laV = laC.totalVotosValidos;
+  const saV = saC.totalVotosValidos;
+  const niV = niC ? niC.totalVotosValidos : 0;
+  const gap = laV - saV;
+
+  // Metric cards
+  document.getElementById('m-pct').textContent = pctCounted.toFixed(1)+'%';
+  document.getElementById('m-actas').textContent = `${fmt(countedActas)} / ${fmt(totalActas)} actas`;
+  document.getElementById('m-votes').textContent = fmt(te);
+  document.getElementById('m-rem').textContent = `~${fmt(estRem)} restantes`;
+  document.getElementById('m-gap').textContent = fmt(gap);
+  document.getElementById('m-gap').style.color = gap > 0 ? 'var(--la)' : 'var(--sa)';
+  const niGap = niV - saV;
+  document.getElementById('m-ni').textContent = fmt(Math.abs(niGap));
+  document.getElementById('m-ni').style.color = niGap > 0 ? 'var(--red)' : 'var(--ni)';
+  document.getElementById('m-ni2').textContent = niGap > 0 ? 'SA debe remontar a Nieto' : 'SA ya supero a Nieto';
+
+  // Candidate bars
+  const maxV = valid[0].totalVotosValidos;
+  const colMap = { 'ALIAGA':'var(--la)', 'PALOMINO':'var(--sa)', 'NIETO':'var(--ni)' };
+  const barsEl = document.getElementById('cand-bars');
+  barsEl.innerHTML = '';
+  for(const c of valid.slice(0,5)){
+    const v = c.totalVotosValidos;
+    const p = v/te*100;
+    const w = v/maxV*100;
+    const n = c.nombreCandidato;
+    let col = '#6b7280';
+    if(strip(n).includes('ALIAGA')) col='var(--la)';
+    else if(strip(n).includes('PALOMINO')&&strip(n).includes('SANCHEZ')) col='var(--sa)';
+    else if(strip(n).includes('NIETO')) col='var(--ni)';
+    barsEl.innerHTML += `
+      <div style="margin-bottom:14px">
+        <div class="bar-label">
+          <span class="cand-name">${n}</span>
+          <span class="cand-pct" style="color:${col}">${p.toFixed(3)}%</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill" style="width:${w}%;background:${col}"></div></div>
+        <div class="cand-votes">${fmt(v)} votos</div>
+      </div>`;
+  }
+
+  // Dept analysis
+  let limaEm=0,limaLa=0,limaSa=0,limaRem=0,limaDpct=pctCounted;
+  let provEm=0,provLa=0,provSa=0,provRem=0;
+  const deptRows = [];
+
+  for(const ubi of UBIGEOS){
+    const name = DEPT_NAMES[ubi];
+    const cands = depts[ubi]||[];
+    const em = cands.reduce((s,c)=>s+(c.totalVotosValidos||0),0);
+    const laD = (findCand(cands,'ALIAGA')||{}).totalVotosValidos||0;
+    const saD = cands.find(c=>{const n=strip(c.nombreCandidato||'');return n.includes('SANCHEZ')&&n.includes('PALOMINO');})||{};
+    const saDV = saD.totalVotosValidos||0;
+
+    const dp = deptPcts[ubi];
+    const deptPct = (dp&&dp.pct>0) ? dp.pct : (DEPT_PCT_FALLBACK[ubi]||pctCounted);
+    const deptTotalEst = deptPct>0 ? Math.round(em/(deptPct/100)) : em;
+    const deptRem = Math.max(0, deptTotalEst - em);
+    const saPct = em>0 ? saDV/em*100 : 0;
+    const laPct = em>0 ? laD/em*100 : 0;
+    const net = Math.round(deptRem*(saPct-laPct)/100);
+
+    if(ubi==='140000'){
+      limaEm=em; limaLa=laD; limaSa=saDV; limaRem=deptRem; limaDpct=deptPct;
+    } else {
+      provEm+=em; provLa+=laD; provSa+=saDV; provRem+=deptRem;
+    }
+    deptRows.push({ name, deptPct, em, deptRem, saPct, laPct, net });
+  }
+  deptRows.sort((a,b)=>Math.abs(b.net)-Math.abs(a.net));
+
+  // Dept table
+  const tbody = document.getElementById('dept-body');
+  tbody.innerHTML = '';
+  for(const r of deptRows){
+    const winner = r.net>0 ? 'SA' : 'LA';
+    const pill = r.net>0 ? 'pill-sa' : 'pill-la';
+    tbody.innerHTML += `<tr>
+      <td>${r.name}</td>
+      <td>${r.deptPct.toFixed(1)}%</td>
+      <td>${fmt(r.em)}</td>
+      <td>${fmt(r.deptRem)}</td>
+      <td style="color:var(--sa)">${r.saPct.toFixed(1)}%</td>
+      <td style="color:var(--la)">${r.laPct.toFixed(1)}%</td>
+      <td><span class="pill ${pill}">${winner}+${fmt(Math.abs(r.net))}</span></td>
+    </tr>`;
+  }
+
+  // Pools
+  const limaLaPct = limaEm>0 ? limaLa/limaEm*100 : 17.7;
+  const limaSaPct = limaEm>0 ? limaSa/limaEm*100 : 2.9;
+  const limaNet = Math.round(limaRem*(limaLaPct-limaSaPct)/100);
+  const provLaPct = provEm>0 ? provLa/provEm*100 : 6;
+  const provSaPct = provEm>0 ? provSa/provEm*100 : 13;
+  const provNet = Math.round(provRem*(provSaPct-provLaPct)/100);
+
+  document.getElementById('pool-lima-pct').textContent = limaDpct.toFixed(1)+'%';
+  document.getElementById('pool-lima-rem').textContent = fmt(limaRem);
+  document.getElementById('pool-lima-la').textContent = pct(limaLaPct);
+  document.getElementById('pool-lima-sa').textContent = pct(limaSaPct);
+  document.getElementById('pool-lima-net').textContent = `LA+${fmt(limaNet)}`;
+  document.getElementById('pool-prov-rem').textContent = fmt(provRem);
+  document.getElementById('pool-prov-la').textContent = pct(provLaPct);
+  document.getElementById('pool-prov-sa').textContent = pct(provSaPct);
+
+  // Buffer
+  const buffer = gap + limaNet;
+  const currentSpread = provSaPct - provLaPct;
+  const neededSpread = provRem>0 ? buffer/provRem*100 : 0;
+  const extraPP = neededSpread - currentSpread;
+  document.getElementById('pool-needed').textContent = neededSpread.toFixed(2)+'pp';
+  document.getElementById('pool-extra').textContent = (extraPP>=0?'+':'')+extraPP.toFixed(2)+'pp';
+  document.getElementById('pool-extra').style.color = extraPP>0 ? 'var(--ni)' : 'var(--red)';
+
+  // Probability
+  const probLA = Math.min(99,Math.max(1,50+25*Math.tanh(extraPP/18)));
+  const probSA = 100-probLA;
+  document.getElementById('prob-la').style.width = probLA+'%';
+  document.getElementById('prob-sa').style.width = probSA+'%';
+  document.getElementById('prob-la-txt').textContent = `LA ${probLA.toFixed(1)}%`;
+  document.getElementById('prob-sa-txt').textContent = `SA ${probSA.toFixed(1)}%`;
+
+  // Scenarios
+  const scEl = document.getElementById('scenarios');
+  scEl.innerHTML = '';
+  const surges = [-3,-1,0,2,4,6,8];
+  const maxAbsGap = Math.max(...surges.map(s=>Math.abs(buffer - Math.round(provRem*(provSaPct+s-provLaPct)/100))));
+  for(const surge of surges){
+    const newSaPct = provSaPct+surge;
+    const newNet = Math.round(provRem*(newSaPct-provLaPct)/100);
+    const newGap = buffer - newNet;
+    const w = newGap>0 ? 'LA' : 'SA';
+    const barPct = Math.round(Math.abs(newGap)/maxAbsGap*100);
+    const barCol = w==='LA' ? 'var(--la)' : 'var(--sa)';
+    const lbl = surge>=0 ? `+${surge}pp` : `${surge}pp`;
+    scEl.innerHTML += `<div class="scenario-row">
+      <span class="sc-surge">SA ${lbl}</span>
+      <div class="sc-bar-wrap"><div class="sc-bar" style="width:${barPct}%;background:${barCol}"></div></div>
+      <span class="sc-result" style="color:${barCol}">${w} +${fmt(Math.abs(newGap))}</span>
+    </div>`;
+  }
+}
+
+async function update(){
+  document.getElementById('status-text').textContent = 'Cargando datos ONPE...';
+  const { totals, candsRaw } = await fetchAll();
+  if(!totals||!candsRaw){
+    document.getElementById('status-dot').className='';
+    document.getElementById('status-text').textContent='ONPE no disponible';
+    document.getElementById('error-msg').style.display='block';
+    return;
+  }
+  document.getElementById('status-dot').className='live';
+  document.getElementById('status-text').textContent='Cargando departamentos...';
+
+  const [depts, deptPcts] = await Promise.all([fetchDepts(), fetchDeptPcts()]);
+
+  const nt = totals.data;
+  const nc = candsRaw.data;
+  render({
+    nt, nc, depts, deptPcts,
+    pctCounted: nt.actasContabilizadas,
+    totalActas: nt.totalActas,
+    countedActas: nt.contabilizadas
+  });
+
+  const now = new Date().toLocaleTimeString('es-PE');
+  document.getElementById('last-update').textContent = `Actualizado: ${now}`;
+  document.getElementById('status-text').textContent = `En vivo — ${now}`;
+}
+
+update();
+setInterval(update, 90000);
+</script>
+</body>
+</html>
