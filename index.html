@@ -224,23 +224,30 @@ function strip(s){ return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUp
 
 async function apiFetch(path) {
   try {
-    const r = await fetch(`${API_BASE}/${path}`, {
+    const url = `${API_BASE}/${path}`;
+    const r = await fetch(url, {
       headers: {
         Accept: "application/json"
       }
     });
 
-    if (!r.ok) return null;
-
+    const contentType = r.headers.get("content-type") || "";
     const t = await r.text();
-    if (!t || t.startsWith("<")) return null;
+
+    console.log("URL:", url);
+    console.log("STATUS:", r.status);
+    console.log("CONTENT-TYPE:", contentType);
+    console.log("BODY PREVIEW:", t.slice(0, 300));
+
+    if (!r.ok) return null;
+    if (!t) return null;
 
     return JSON.parse(t);
   } catch (e) {
+    console.error("apiFetch error:", path, e);
     return null;
   }
 }
-
 async function fetchAll(){
   const [totals, candsRaw] = await Promise.all([
     apiFetch('resumen-general/totales?idEleccion=10&tipoFiltro=eleccion'),
