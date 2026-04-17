@@ -200,7 +200,7 @@
 </footer>
 
 <script>
-const BASE = 'https://resultadoelectoral.onpe.gob.pe/presentacion-backend/';
+const API_BASE = "https://onpe-proxy.tarmaoroyamaycolnolberto.workers.dev/onpe";
 const DEPT_NAMES = {
   '010000':'Amazonas','020000':'Ancash','030000':'Apurimac','040000':'Arequipa',
   '050000':'Ayacucho','060000':'Cajamarca','070000':'Cusco','080000':'Huancavelica',
@@ -222,16 +222,23 @@ function fmt(n){ return Math.round(n).toLocaleString('es-PE'); }
 function pct(n){ return n.toFixed(2)+'%'; }
 function strip(s){ return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase(); }
 
-async function apiFetch(path){
+async function apiFetch(path) {
   try {
-    const r = await fetch(BASE+path, {
-      headers: { 'Accept':'application/json','Origin':'https://resultadoelectoral.onpe.gob.pe','Referer':'https://resultadoelectoral.onpe.gob.pe/' }
+    const r = await fetch(`${API_BASE}/${path}`, {
+      headers: {
+        Accept: "application/json"
+      }
     });
-    if(!r.ok) return null;
+
+    if (!r.ok) return null;
+
     const t = await r.text();
-    if(!t || t.startsWith('<')) return null;
+    if (!t || t.startsWith("<")) return null;
+
     return JSON.parse(t);
-  } catch(e){ return null; }
+  } catch (e) {
+    return null;
+  }
 }
 
 async function fetchAll(){
@@ -438,6 +445,7 @@ async function update(){
     document.getElementById('error-msg').style.display='block';
     return;
   }
+  document.getElementById('error-msg').style.display = 'none';
   document.getElementById('status-dot').className='live';
   document.getElementById('status-text').textContent='Cargando departamentos...';
 
